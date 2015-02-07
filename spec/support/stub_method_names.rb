@@ -2,7 +2,7 @@ require 'stub_a'
 
 shared_context "shared stub" do
   let(:stub) do
-    StubA.new(target)
+    StubA.new *(option ? [target, option] : [target])
   end
 
   let(:hook_method_name) do
@@ -12,6 +12,8 @@ shared_context "shared stub" do
   [:first,
    :second,
    :third,
+   :zweit,
+   :dritt,
   ].product(
     [:origin,
      :before,

@@ -23,6 +23,20 @@ describe StubA, "#stub" do
       yield(a, b)
       @log
     end
+
+    class << self
+      def zweit(log, a, b)
+        log.push(:origin)
+        log.push([a, b])
+        log
+      end
+
+      def dritt(log, a, b)
+        log.push(:origin)
+        yield(log, a, b)
+        log
+      end
+    end
   end
 
   let(:log) { [] }
@@ -30,6 +44,7 @@ describe StubA, "#stub" do
   context "クラスを操作した場合" do
     context "存在するインスタンスメソッドを指定した場合" do
       let(:target) { Baz.dup }
+      let(:option) { nil }
 
       include_context "shared stub"
 
@@ -123,6 +138,7 @@ describe StubA, "#stub" do
 
   context "インスタンスを操作した場合" do
     let(:target) { Baz.new(log) }
+    let(:option) { nil }
 
     context "存在するインスタンスメソッドを指定した場合" do
       include_context "shared stub"

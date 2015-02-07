@@ -1,6 +1,10 @@
 class StubA
-  def initialize(object)
-    @target_class = object if object.is_a? Class
+  def initialize(object, option={})
+    if object.is_a? Class
+      @target_class = object unless option[:class]
+    elsif option[:class]
+      raise
+    end
     @target_class ||= class << object; self; end
   end
 

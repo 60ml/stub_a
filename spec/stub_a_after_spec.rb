@@ -23,12 +23,27 @@ describe StubA, "#after" do
       yield(@log, x, y)
       @log
     end
+
+    class << self
+      def zweit(log, a, b)
+        log.push(:origin)
+        log.push([a, b])
+        log
+      end
+
+      def dritt(log, a, b)
+        log.push(:origin)
+        yield(log, a, b)
+        log
+      end
+    end
   end
 
   let(:log) { [] }
 
   context "インスタンスを操作した場合" do
     let(:target) { Baa.new(log) }
+    let(:option) { nil }
 
     context "存在するインスタンスメソッドを指定した場合" do
       include_context "shared stub"
