@@ -129,19 +129,19 @@ class StubA
   end
 
   def default_before_hook(method)
-    ->(method, *args, &block) {
-      puts "[#{Time.now}] call `#{method}' (#{self.inspect})"
-      puts "args: #{args.inspect}" if args.size > 0
+    ->(arg, &block) {
+      puts "[#{Time.now}] call `#{arg.method_name}' (#{self.inspect})"
+      puts "args: #{arg.args.inspect}" if arg.args.size > 0
     }
   end
 
   def default_after_hook(method)
     before_method = hook_method_name(method, :before)
-    ->(method, val) {
+    ->(arg) {
       unless respond_to? before_method
-        puts "[#{Time.now}] call `#{method}' (#{self.inspect})"
+        puts "[#{Time.now}] call `#{arg.method_name}' (#{self.inspect})"
       end
-      puts "return: #{val.inspect}"
+      puts "return: #{arg.return_value.inspect}"
     }
   end
 
