@@ -157,7 +157,7 @@ WARNING!
 
 ```
 > stub.after(:eat) do |m|
->   @weight += 100 if m.return_value.split.last == "fish"
+>   @weight += 100 if m.args.first == :fish
 >   puts m.return_value
 >   puts @weight
 > end
@@ -170,8 +170,9 @@ Yum yum.  I love fish
 ```
 
 `after` が伴うブロックも `Struct` オブジェクトの引数をとります。
-フィールドは `method_name` と `return_value` で、
-それぞれ元のメソッド名、戻り値が格納されます。
+フィールドは `method_name` と `args`、`return_value` で、
+それぞれ元のメソッド名、メソッドに渡された引数、その戻り値が
+格納されます。
 
 それぞれ、`stub` 同様、`restore` で元に戻すことができます。
 

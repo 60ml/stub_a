@@ -130,7 +130,7 @@ class StubA
       end
 
       if respond_to? methods[:after]
-        __send__ methods[:after], ARGS[:after].new(method_name, val)
+        __send__ methods[:after], ARGS[:after].new(method_name, args, val)
       end
 
       val
@@ -176,7 +176,7 @@ class StubA
   ARGS = {
     before: Struct.new(:method_name, :args),
     stub: Struct.new(:method, :args),
-    after: Struct.new(:method_name, :return_value),
+    after: Struct.new(:method_name, :args, :return_value),
   }
   private_constant :ARGS
 end
