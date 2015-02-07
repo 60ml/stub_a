@@ -1,4 +1,28 @@
+# coding: utf-8
+
 class StubA
+  # コンストラクタ
+  #
+  # StubA は、コンストラクタに操作対象のオブジェクトを要求します。
+  #
+  # 操作対象としてインスタンスを渡すと、StubA インスタンスを通して
+  # 対象のインスタンスメソッドにフックやスタブを適用できるように
+  # なります。操作を通じて作成されるフックやスタブは特異メソッド
+  # として作成されますので、指定したインスタンスのみの動作を変更
+  # できます。
+  #
+  #  array = [1, 2, 3]
+  #  stub = StubA.new(array)
+  #  stub.before(:unshift) do ...
+  #
+  # コンストラクタに操作対象のクラスを渡した場合、StubA インスタンスを
+  # 通して、対象のインスタンスメソッドとクラスメソッドにフックや
+  # スタブを適用できるようになります。ただしクラスメソッドを操作
+  # する場合は、+class: true+ というオプションをつける必要があります。
+  #
+  #  stub = StubA.new(User, class: true)
+  #  stub.before(:where) do ...
+  #
   def initialize(object, option={})
     if object.is_a? Class
       @target_class = object unless option[:class]
