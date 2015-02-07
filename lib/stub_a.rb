@@ -138,7 +138,7 @@ class StubA
   end
 
   def defined_hooks
-    re = /\A===>\(stub_a\) (before|after|stub|origin)-(.+)\z/
+    re = /\A===>\(stub_a\) (#{METHOD_TYPES.join('|')})-(.+)\z/
     @target_class.instance_methods.each_with_object({}) {|name, h|
       if name.to_s =~ re
         h[$2] ||= []
