@@ -157,7 +157,7 @@ WARNING!
 
 ```
 > stub.after(:eat) do |m|
->   @weight += 100 if m.split.last == "fish"
+>   @weight += 100 if m.return_value.split.last == "fish"
 >   puts m.return_value
 >   puts @weight
 > end
