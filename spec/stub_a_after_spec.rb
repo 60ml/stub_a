@@ -43,7 +43,6 @@ describe StubA, "#after" do
 
   context "インスタンスを操作した場合" do
     let(:target) { Baa.new(log) }
-    let(:option) { nil }
 
     context "存在するインスタンスメソッドを指定した場合" do
       include_context "shared stub"

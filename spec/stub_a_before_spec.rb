@@ -44,7 +44,6 @@ describe StubA, "#before" do
   context "クラスを操作した場合" do
     context "存在するインスタンスメソッドを指定した場合" do
       let(:target) { Foo.dup }
-      let(:option) { nil }
 
       include_context "shared stub"
 
@@ -132,75 +131,8 @@ describe StubA, "#before" do
       end
     end
 
-    context "存在するクラスメソッドを指定した場合" do
-      let(:target) { Foo.dup }
-      let(:option) { { class: true } }
-
-      include_context "shared stub"
-
-      before do
-        stub.before(:zweit) {|a|
-          array = a.args.first
-          array.push("before (#{a.method_name})")
-        }
-      end
-
-      it "書き換えたオリジナルメソッドが作成されていること" do
-        expect(target.respond_to? origin_zweit_method_name).to be true
-      end
-
-      it "before フックが作成されていること" do
-        expect(target.respond_to? before_zweit_method_name).to be true
-      end
-
-      it "指定していない after フックは作成されていないこと" do
-        expect(target.respond_to? after_zweit_method_name).to be false
-      end
-
-      context "ブロックを伴わないメソッドの場合" do
-        it "オリジナルメソッドがオリジナルどおりに動作すること" do
-          method = origin_zweit_method_name
-          value = target.__send__ method, log, :arg1, :arg2
-          expect(value).to eq [:origin, [:arg1, :arg2]]
-        end
-
-        it "メソッド実行の前に before フックも実行されること" do
-          value = target.zweit(log, 1, 2)
-          expect(value).to eq ["before (zweit)", :origin, [1, 2]]
-        end
-      end
-
-      context "引数とブロックを伴うメソッドの場合" do
-        before do
-          stub.before(:dritt) {|a|
-            array = a.args.first
-            array.push("before (#{a.method_name})")
-          }
-        end
-
-        it "オリジナルメソッドがオリジナルどおりに動作すること" do
-          method = origin_dritt_method_name
-          value = target.__send__(method, log, :a, :b) {|array, x, y|
-            array.push(:origin_block)
-            array.push([x, y])
-          }
-          expect(value).to eq [:origin, :origin_block, [:a, :b]]
-        end
-
-        it "メソッド実行の前に before フックも実行されること" do
-          value = target.dritt(log, 1, 2) do |a, x, y|
-            a.push(:origin_block)
-            a.push([x, y])
-          end
-          expect(value).to eq ["before (dritt)", :origin,
-                               :origin_block, [1, 2]]
-        end
-      end
-    end
-
     context "存在しないメソッドを指定した場合" do
       let(:target) { Foo.dup }
-      let(:option) { nil }
 
       it "エラーが発生すること" do
         expect{
@@ -221,7 +153,6 @@ describe StubA, "#before" do
 
   context "インスタンスを操作した場合" do
     let(:target) { Foo.new(log) }
-    let(:option) { nil }
 
     context "存在するインスタンスメソッドを指定した場合" do
       include_context "shared stub"
