@@ -2,43 +2,6 @@
 require 'spec_helper'
 
 describe StubA, "#before" do
-  class Foo
-    def initialize(log)
-      @log = log
-    end
-
-    def first
-      @log.push(:origin)
-      @log
-    end
-
-    def second(a, b)
-      @log.push(:origin)
-      @log.push([a, b])
-      @log
-    end
-
-    def third(a, b)
-      @log.push(:origin)
-      yield(@log, a, b)
-      @log
-    end
-
-    class << self
-      def zweit(log, a, b)
-        log.push(:origin)
-        log.push([a, b])
-        log
-      end
-
-      def dritt(log, a, b)
-        log.push(:origin)
-        yield(log, a, b)
-        log
-      end
-    end
-  end
-
   let(:log) { [] }
 
   context "クラスを操作した場合" do

@@ -2,48 +2,11 @@
 require 'stub_a'
 
 describe StubA, "#stub" do
-  class Baz
-    def initialize(log)
-      @log = log
-    end
-
-    def first
-      @log.push(:origin)
-      @log
-    end
-
-    def second(a, b)
-      @log.push(:origin)
-      @log.push([a, b])
-      @log
-    end
-
-    def third(a, b)
-      @log.push(:origin)
-      yield(a, b)
-      @log
-    end
-
-    class << self
-      def zweit(log, a, b)
-        log.push(:origin)
-        log.push([a, b])
-        log
-      end
-
-      def dritt(log, a, b)
-        log.push(:origin)
-        yield(log, a, b)
-        log
-      end
-    end
-  end
-
   let(:log) { [] }
 
   context "クラスを操作した場合" do
     context "存在するインスタンスメソッドを指定した場合" do
-      let(:target) { Baz.dup }
+      let(:target) { Foo.dup }
 
       include_context "shared stub"
 
@@ -110,14 +73,14 @@ describe StubA, "#stub" do
           stub.stub(:third) do |arg, &block|
             @log.push(:stub)
             @log.push(arg.args)
-            block.call(*arg.args) if block
+            block.call(@log, *arg.args) if block
             @log
           end
         end
 
         it "オリジナルメソッドがオリジナルどおりに動作すること" do
           method = origin_third_method_name
-          value = target.new(log).__send__(method, :a, :b) do |x, y|
+          value = target.new(log).__send__(method, :a, :b) do |log, x, y|
             log.push(:origin_block)
             log.push([x, y])
           end
@@ -125,7 +88,7 @@ describe StubA, "#stub" do
         end
 
         it "オリジナルメソッドの代わりに stub が実行されること" do
-          value = target.new(log).third(:a, :b) do |a, b|
+          value = target.new(log).third(:a, :b) do |log, a, b|
             log.push(:origin_block)
             log.push([a, b])
           end
@@ -136,7 +99,7 @@ describe StubA, "#stub" do
   end
 
   context "インスタンスを操作した場合" do
-    let(:target) { Baz.new(log) }
+    let(:target) { Foo.new(log) }
 
     context "存在するインスタンスメソッドを指定した場合" do
       include_context "shared stub"
@@ -153,7 +116,7 @@ describe StubA, "#stub" do
       end
 
       it "別のインスタンスには書き換えたメソッドが作成されていないこと" do
-        expect(Baz.new(log).respond_to? origin_first_method_name).to be false
+        expect(Foo.new(log).respond_to? origin_first_method_name).to be false
       end
 
       it "stub メソッドが作成されていること" do
@@ -165,7 +128,7 @@ describe StubA, "#stub" do
       end
 
       it "別のインスタンスには stub メソッドが作成されていないこと" do
-        expect(Baz.new(log).respond_to? stub_first_method_name).to be false
+        expect(Foo.new(log).respond_to? stub_first_method_name).to be false
       end
 
       context "引数を伴わないメソッドの場合" do
@@ -178,7 +141,7 @@ describe StubA, "#stub" do
         end
 
         it "別のインスタンスの動作には影響がないこと" do
-          expect(Baz.new(log).first).to eq [:origin]
+          expect(Foo.new(log).first).to eq [:origin]
         end
       end
 
@@ -203,7 +166,7 @@ describe StubA, "#stub" do
         end
 
         it "別のインスタンスの動作には影響がないこと" do
-          value = Baz.new(log).second(:a, :b)
+          value = Foo.new(log).second(:a, :b)
           expect(value).to eq [:origin, [:a, :b]]
         end
       end
@@ -213,14 +176,14 @@ describe StubA, "#stub" do
           stub.stub(:third) do |arg, &block|
             @log.push(:stub)
             @log.push(arg.args)
-            block.call(*arg.args) if block
+            block.call(@log, *arg.args) if block
             @log
           end
         end
 
         it "オリジナルメソッドがオリジナルどおりに動作すること" do
           method = origin_third_method_name
-          value = target.__send__(method, 1, 2) {|x, y|
+          value = target.__send__(method, 1, 2) {|log, x, y|
             log.push(:origin_block)
             log.push([x, y])
           }
@@ -228,7 +191,7 @@ describe StubA, "#stub" do
         end
 
         it "オリジナルメソッドの代わりに stub が実行されること" do
-          value = target.third(1, 2) do |x, y|
+          value = target.third(1, 2) do |log, x, y|
             log.push(:origin_block)
             log.push([x, y])
           end
