@@ -3,11 +3,14 @@ require 'spec_helper'
 
 describe StubA, "#restore" do
   context "クラスを操作した場合" do
+    let(:target) { Foo.dup }
+    include_context "shared stub"
+
+    let(:target_methods) {
+      target.instance_methods.map(&:to_s)
+    }
+
     context "1 つのメソッドに before フックを作成した場合" do
-      let(:target) { Foo.dup }
-
-      include_context "shared stub"
-
       before do
         stub.before(:first) {|a| @log.push :before }
       end
@@ -18,7 +21,7 @@ describe StubA, "#restore" do
         end
 
         it "書き換えたメソッドが存在しないこと" do
-          methods = target.instance_methods.select {|m| m.to_s =~ /stub_a/ }
+          methods = target_methods.select {|m| m =~ /stub_a/ }
           expect(methods).to be_empty
         end
       end
@@ -29,7 +32,7 @@ describe StubA, "#restore" do
         end
 
         it "書き換えたメソッドが存在しないこと" do
-          methods = target.instance_methods.select {|m| m.to_s =~ /stub_a/ }
+          methods = target_methods.select {|m| m =~ /stub_a/ }
           expect(methods).to be_empty
         end
       end
@@ -40,7 +43,7 @@ describe StubA, "#restore" do
         end
 
         it "書き換えたメソッドが存在しないこと" do
-          methods = target.instance_methods.select {|m| m.to_s =~ /stub_a/ }
+          methods = target_methods.select {|m| m =~ /stub_a/ }
           expect(methods).to be_empty
         end
       end
@@ -73,10 +76,6 @@ describe StubA, "#restore" do
     end
 
     context "2 つのメソッドに before フックを作成した場合" do
-      let(:target) { Foo.dup }
-
-      include_context "shared stub"
-
       before do
         stub.before(:first) {|a| @log.push :before_1 }
         stub.before(:second) {|a| @log.push :before_2 }
@@ -94,17 +93,13 @@ describe StubA, "#restore" do
             after_second_method_name,
             stub_second_method_name,
           ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
+          methods = target_methods.select {|m| names.include? m }
           expect(methods).to be_empty
         end
 
         it "対象以外のメソッドについては書き換えたメソッドが存在すること" do
-          names = [
-            origin_first_method_name,
-            before_first_method_name,
-          ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
-          expect(methods).to match_array names.map(&:to_sym)
+          expect(target.method_defined? origin_first_method_name).to be true
+          expect(target.method_defined? before_first_method_name).to be true
         end
       end
 
@@ -120,17 +115,13 @@ describe StubA, "#restore" do
             after_second_method_name,
             stub_second_method_name,
           ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
+          methods = target_methods.select {|m| names.include? m }
           expect(methods).to be_empty
         end
 
         it "対象以外のメソッドについては書き換えたメソッドが存在すること" do
-          names = [
-            origin_first_method_name,
-            before_first_method_name,
-          ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
-          expect(methods).to match_array names.map(&:to_sym)
+          expect(target.method_defined? origin_first_method_name).to be true
+          expect(target.method_defined? before_first_method_name).to be true
         end
       end
 
@@ -140,37 +131,46 @@ describe StubA, "#restore" do
         end
 
         it "対象のメソッドについて書き換えたメソッドが存在すること" do
-          names = [
-            origin_second_method_name,
-            before_second_method_name,
-          ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
-          expect(methods).to match_array names.map(&:to_sym)
+          expect(target.method_defined? origin_second_method_name).to be true
+          expect(target.method_defined? before_second_method_name).to be true
         end
 
         it "対象以外のメソッドについても書き換えたメソッドが存在すること" do
-          names = [
-            origin_first_method_name,
-            before_first_method_name,
-          ]
-          methods = target.instance_methods.select {|m| names.include? m.to_s }
-          expect(methods).to match_array names.map(&:to_sym)
+          expect(target.method_defined? origin_first_method_name).to be true
+          expect(target.method_defined? before_first_method_name).to be true
         end
       end
 
       context "引数を伴わずに実行した場合" do
         it "エラーが発生すること" do
-          expect{
-            stub.restore
-          }.to raise_error
+          expect { stub.restore }.to raise_error
         end
       end
 
       context "操作していないメソッド名を引数として伴って実行した場合" do
         it "エラーが発生すること" do
-          expect{
-            stub.restore(:third)
-          }.to raise_error
+          expect { stub.restore(:third) }.to raise_error
+        end
+      end
+    end
+
+    context "1 つのメソッドに before と after フックを作成した場合" do
+      before do
+        stub.before(:first) {|a| @log.push :before }
+        stub.after(:first) {|a| @log.push :after }
+      end
+
+      context "引数としてメソッド名と :before を伴って実行した場合" do
+        before do
+          stub.restore(:first, :before)
+        end
+
+        it "after フックが存在すること" do
+          expect(target_methods).to include after_first_method_name
+        end
+
+        it "before フックが存在しないこと" do
+          expect(target_methods).not_to include before_first_method_name
         end
       end
     end
