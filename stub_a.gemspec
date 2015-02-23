@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name        = "stub_a"
-  s.version     = "0.0.1"
+  s.version     = "0.0.2"
   s.date        = "2015-02-07"
   s.summary     = "a tool to manipulate objects with hooks and stubs"
   s.description = "a tool to manipulate objects with hooks and stubs"
